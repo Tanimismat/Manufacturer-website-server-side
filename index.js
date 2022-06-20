@@ -17,7 +17,7 @@ async function run() {
     try {
         await client.connect()
         // await client.db("manufacturer_website").collection("tools");
-        console.log("Connected to database"); 
+        console.log("Connected to manufacturer database"); 
         const database = client.db('manufacturer_website');
         const toolCollection = database.collection('tools');
         

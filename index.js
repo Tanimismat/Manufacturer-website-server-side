@@ -20,6 +20,7 @@ async function run() {
         console.log("Connected to manufacturer database"); 
         const database = client.db('manufacturer_website');
         const toolCollection = database.collection('tools');
+        const orderCollection = database.collection('orders');
         
         // loading data from database
         app.get('/tools', async (req, res) => {
@@ -37,6 +38,13 @@ async function run() {
             res.send(singleTool)
         })
 
+        // adding orders data
+        app.post('/orders', async(req, res) => {
+            const order = req.body;
+            console.log(order)
+            const result = await orderCollection.insertOne(order);
+            res.send(result)
+        })
     } 
     finally { 
         // await client.close();

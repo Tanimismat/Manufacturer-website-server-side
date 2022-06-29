@@ -27,23 +27,29 @@ async function run() {
             const query = {};
             const cursor = toolCollection.find(query);
             const tools = await cursor.toArray();
-            res.send(tools)
+            res.send(tools);
         })
 
         // api for loading single tool
         app.get('/tool/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const singleTool = await toolCollection.findOne(query)
-            res.send(singleTool)
+            const singleTool = await toolCollection.findOne(query);
+            res.send(singleTool);
         })
 
         // adding orders data
         app.post('/orders', async(req, res) => {
             const order = req.body;
-            console.log(order)
             const result = await orderCollection.insertOne(order);
-            res.send(result)
+            res.send(result);
+        })
+
+        app.get('/orders', async (req, res) => {
+            const user = req.query.email;
+            const query = { user: user };
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders)
         })
     } 
     finally { 

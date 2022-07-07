@@ -14,6 +14,26 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+// function for verifying JWT
+function verifyJWT(req, res, next) {
+    // reading auth header
+    const authHeader = req.headers.authorization;
+    // console.log('abc');
+    // sending response if there is no auth header
+    if (!authHeader) {
+        return res.status(401).send({ message: "Unauthorized access" });
+    }
+    // checking if the token is correct == verification
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+        if (err) {
+            return res.status(403).send({ message: "Forbidden access" });
+        }
+        req.decoded = decoded;
+        next()
+    });
+}
+
 async function run() {
     try {
         await client.connect()
@@ -46,12 +66,23 @@ async function run() {
             const result = await orderCollection.insertOne(order);
             res.send(result);
         })
-
-        app.get('/orders', async (req, res) => {
+        // --------
+        app.get('/orders',verifyJWT, async (req, res) => {
             const user = req.query.email;
-            const query = { user: user };
-            const orders = await orderCollection.find(query).toArray();
-            res.send(orders)
+
+            // reading authorization header
+            // const authorization = req.headers.authorization;
+            // console.log('auth header',authorization)
+
+            const decodedEmail = req.decoded.email;
+            if (user === decodedEmail) {
+                const query = { user: user };
+                const orders = await orderCollection.find(query).toArray();
+                return res.send(orders);
+            }
+            else {
+                return res.status(403).send({ message: "Forbidden access" });
+            }
         })
 
         app.put('/user/:email', async (req, res) => {

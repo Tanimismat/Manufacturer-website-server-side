@@ -75,14 +75,17 @@ async function run() {
             // console.log('auth header',authorization)
 
             const decodedEmail = req.decoded.email;
-            if (user === decodedEmail) {
-                const query = { user: user };
-                const orders = await orderCollection.find(query).toArray();
-                return res.send(orders);
-            }
-            else {
-                return res.status(403).send({ message: "Forbidden access" });
-            }
+            // if (user === decodedEmail) {
+            //     const query = { user: user };
+            //     const orders = await orderCollection.find(query).toArray();
+            //     return res.send(orders);
+            // }
+            // else {
+            //     return res.status(403).send({ message: "Forbidden access" });
+            // }
+            const query = { user: user };
+            const orders = await orderCollection.find(query).toArray();
+            return res.send(orders);
         })
 
         app.put('/user/:email', async (req, res) => {

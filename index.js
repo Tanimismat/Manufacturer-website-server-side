@@ -15,6 +15,11 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 // function for verifying JWT
+
+// function verifyJWT(req, res, next) {
+//     console.log('abc');
+// }
+
 // function verifyJWT(req, res, next) {
 //     // reading auth header
 //     const authHeader = req.headers.authorization;
@@ -71,8 +76,8 @@ async function run() {
         app.get('/orders', async (req, res) => {
             const user = req.query.email;
             // reading authorization header
-            // const authorization = req.headers.authorization;
-            // console.log('auth header',authorization)
+            const authorization = req.headers.authorization;
+            console.log('auth header',authorization)
 
             // const decodedEmail = req.decoded.email;
             // if (user === decodedEmail) {

@@ -105,6 +105,14 @@ async function run() {
             const token = jwt.sign({email: email}, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'})
             res.send({result, token});
         })
+
+        // Delete a order
+        app.delete('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query);
+            res.send(result);
+        })
     } 
     finally { 
         // await client.close();

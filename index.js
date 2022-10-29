@@ -12,8 +12,6 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.oid2i.mongodb.net/?retryWrites=true&w=majority`;
 
-console.log(uri);
-
 const client = new MongoClient(uri, {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
@@ -26,24 +24,24 @@ const client = new MongoClient(uri, {
 //     console.log('abc');
 // }
 
-// function verifyJWT(req, res, next) {
-//     // reading auth header
-//     const authHeader = req.headers.authorization;
-//     // console.log('abc');
-//     // sending response if there is no auth header
-//     if (!authHeader) {
-//         return res.status(401).send({ message: "Unauthorized access" });
-//     }
-//     // checking if the token is correct == verification
-//     const token = authHeader.split(' ')[1];
-//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
-//         // if (err) {
-//         //     return res.status(403).send({ message: "Forbidden access" });
-//         // }
-//         // req.decoded = decoded;
-//         next()
-//     });
-// }
+function verifyJWT(req, res, next) {
+	//     // reading auth header
+	const authHeader = req.headers.authorization;
+	//     // console.log('abc');
+	//     // sending response if there is no auth header
+	if (!authHeader) {
+		return res.status(401).send({ message: "Unauthorized access" });
+	}
+	//     // checking if the token is correct == verification
+	const token = authHeader.split(" ")[1];
+	jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+		if (err) {
+			return res.status(403).send({ message: "Forbidden access" });
+		}
+		req.decoded = decoded;
+		next();
+	});
+}
 
 async function run() {
 	try {
@@ -66,10 +64,14 @@ async function run() {
 
 		// api for loading single tool
 		app.get("/tool/:id", async (req, res) => {
-			const id = req.params.id;
-			const query = { _id: ObjectId(id) };
-			const singleTool = await toolCollection.findOne(query);
-			res.send(singleTool);
+			try {
+				const id = req.params.id;
+				const query = { _id: ObjectId(id) };
+				const singleTool = await toolCollection.findOne(query);
+				res.send(singleTool);
+			} catch (error) {
+				res.status(400).json({ error: "Not found" });
+			}
 		});
 
 		// adding orders data
@@ -99,6 +101,7 @@ async function run() {
 			return res.send(orders);
 		});
 
+		//
 		app.put("/user/:email", async (req, res) => {
 			const email = req.params.email;
 			const user = req.body;
